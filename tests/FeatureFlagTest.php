@@ -30,12 +30,17 @@ class FeatureFlagTest extends TestCase
                 $this->assertEquals((string)$flag, 'proba');
         }
 
-        function testEnablingFlag()
+        function testUnresolvedFlag()
         {
                 $flag = new FeatureFlag('proba');
                 $this->assertEquals($flag->isResolved(), false);
+        }
 
+        function testEnablingFlag()
+        {
+                $flag = new FeatureFlag('proba');
                 $flag->enable();
+
                 $this->assertEquals($flag->isEnabled(), true);
                 $this->assertEquals($flag->isResolved(), true);
         }
@@ -43,9 +48,8 @@ class FeatureFlagTest extends TestCase
         function testDisablingFlag()
         {
                 $flag = new FeatureFlag('proba');
-                $this->assertEquals($flag->isResolved(), false);
-
                 $flag->disable();
+
                 $this->assertEquals($flag->isEnabled(), false);
                 $this->assertEquals($flag->isResolved(), true);
         }
@@ -53,7 +57,6 @@ class FeatureFlagTest extends TestCase
         function testResolvingFlag()
         {
                 $flag = new FeatureFlag('proba');
-                $this->assertEquals($flag->isResolved(), false);
 
                 $flag->resolve(fn($id) => 'proba' == $id);
                 $this->assertEquals($flag->isResolved(), false);
@@ -65,7 +68,6 @@ class FeatureFlagTest extends TestCase
         function testInvokingFlag()
         {
                 $flag = new FeatureFlag('proba');
-                $this->assertEquals($flag->isResolved(), false);
 
                 $this->assertEquals($flag(), false);
                 $this->assertEquals($flag->isResolved(), true);
