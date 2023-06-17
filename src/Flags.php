@@ -6,12 +6,11 @@ class Flags implements FlagsAggregateInterface
 {
         private array $flags = array();
 
-        function __construct(FeatureFlag ...$flags)
+        private BouncerInterface $bouncer;
+
+        function __construct(BouncerInterface $bouncer = null)
         {
-                foreach ($flags as $flag)
-                {
-                        $this->addFlag($flag);
-                }
+                $this->bouncer = $bouncer ?? new WarningBouncer;
         }
 
         function hasFlag(string $id): bool
@@ -37,16 +36,17 @@ class Flags implements FlagsAggregateInterface
                         }
                 }
 
-                ;
-                ;
-                ;
-
-                return null;
+                return $this->bouncer->bounceMissing($id);
         }
 
         function addFlag(FeatureFlag $flag): FlagsAggregateInterface
         {
-                $this->flags[] = $flag;
+                $id = $flag->getID();
+                if (!$this->hasFlag($id) || !$this->bouncer->bounceDuplicate($id))
+                {
+                        $this->flags[] = $flag;
+                }
+
                 return $this;
         }
 
@@ -60,11 +60,7 @@ class Flags implements FlagsAggregateInterface
                         }
                 }
 
-                ;
-                ;
-                ;
-
-                return false;
+                return $this->bouncer->bounceEnabled($id);
         }
 
         function getIterator(): iterable
